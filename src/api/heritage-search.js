@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   }
 
   const { query } = req.body;
-  
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
   }
@@ -15,31 +14,31 @@ export default async function handler(req, res) {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: "gpt-4",
+        model: 'gpt-4',
         messages: [
           {
-            role: "system",
-            content: "You are a helpful assistant that provides coordinates for heritage places and cultural sites."
+            role: 'system',
+            content: 'You are a helpful assistant that provides coordinates for heritage places and cultural sites.',
           },
           {
-            role: "user",
-            content: `Provide the name, latitude, and longitude of the heritage site or cultural location related to this query: ${query}. Format the response as a JSON object with 'name', 'lat', and 'lon' properties. Ensure 'lat' and 'lon' are numeric values.`
-          }
+            role: 'user',
+            content: `Provide the name, latitude, and longitude of the heritage site or cultural location related to this query: ${query}. Format the response as a JSON object with 'name', 'lat', and 'lon' properties. Ensure 'lat' and 'lon' are numeric values.`,
+          },
         ],
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: 500,
       },
       {
         headers: {
           'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       }
     );
 
     const textResponse = response.data.choices[0].message.content;
     let place;
-    
+
     try {
       place = JSON.parse(textResponse);
     } catch (parseError) {
