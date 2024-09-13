@@ -1,4 +1,3 @@
-// src/api/heritage-search.js
 const axios = require('axios');
 
 export default async function handler(req, res) {
@@ -7,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const { query } = req.body;
-
+  
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
   }
@@ -39,7 +38,14 @@ export default async function handler(req, res) {
     );
 
     const textResponse = response.data.choices[0].message.content;
-    const place = JSON.parse(textResponse);
+    let place;
+    
+    try {
+      place = JSON.parse(textResponse);
+    } catch (parseError) {
+      console.error('Error parsing JSON response:', parseError);
+      return res.status(500).json({ error: 'Invalid response format from OpenAI' });
+    }
 
     if (place && typeof place.lat === 'number' && typeof place.lon === 'number') {
       return res.status(200).json({ place });
